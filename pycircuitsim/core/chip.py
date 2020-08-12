@@ -1,14 +1,17 @@
 """
-This module contains chip definition. Chip is an abstract base class. In order to create your chip you must
-override the setup_wiring function in order to create your chip wiring.
+This module contains chip definition. Chip is an abstract base class.
+In order to create your chip you must override the setup_wiring
+function in order to create your chip wiring.
 """
-from abc import ABC,abstractmethod
-from typing import List, Dict, Any, Callable 
+from abc import ABC, abstractmethod
+from typing import List, Dict, Any, Callable
 
 
 class Chip(ABC):
-	"""This abstract class represnts a chip. You must inhert and override setup_wiring to create your own chip. It support composition, 
-	every chip has multiple parts that are chip on their own"""
+	"""This abstract class represnts a chip. You must inhert and override
+	setup_wiring to create your own chip.
+	It support composition, every chip has multiple
+	parts that are chip on their own"""
 	class Wiring:
 		def __init__(self, fn):
 			self.fn = fn
@@ -32,7 +35,7 @@ class Chip(ABC):
 		self.parts[name] = chip
 
 	def process_chip(self, name):
-		self.parts[name].process() 
+		self.parts[name].process()
 
 	def link_pins(self, pin_from: str, pin_to: str) -> None:
 		self.set_pin(pin_to, self.pin(pin_from))
@@ -45,7 +48,8 @@ class Chip(ABC):
 		self.wiring.resolve()
 
 	def pin(self, pin_name):
-		""" get pin_name value. You can address input pin, output pin or a chip part pin using the "partname.pinname" name for the pin. 
+		""" get pin_name value. You can address input pin,
+		output pin or a chip part pin using the "partname.pinname" name for the pin.
 		Raise exception if it can't fine the requested pin"""
 		if pin_name in self.inPins.keys():
 			return self.inPins[pin_name]
@@ -59,7 +63,9 @@ class Chip(ABC):
 			raise "Incorrect pin name"
 
 	def set_pin(self, name, value):
-		""" set pin_name to value. You can address input pin, output pin or a chip part pin using the "partname.pinname" name for the pin name. 
+		""" set pin_name to value. You can address input pin,
+		output pin or a chip part pin using the "partname.pinname"
+		name for the pin name.
 		Raise exception if it can't fine the requested pin"""
 		if name in self.inPins.keys():
 			self.inPins[name] = value
@@ -75,8 +81,9 @@ class Chip(ABC):
 
 class MultiBitChip(Chip):
 
-	def __init__(self, n_bits: int, n_inputs:int, fn: Callable[[int], None]):
-		super().__init__([f"in{i}" for i in range(n_bits)], [f"out{i}" for i in range(n_bits)])
+	def __init__(self, n_bits: int, n_inputs: int, fn: Callable[[int], None]):
+		super().__init__([f"in{i}" for i in range(n_bits)],
+						[f"out{i}" for i in range(n_bits)])
 
 		self.fn = fn
 		self.n_bits = n_bits

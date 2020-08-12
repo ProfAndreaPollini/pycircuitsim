@@ -1,4 +1,4 @@
-from ..core.chip import Chip, MultiBitChip
+from ..core.chip import Chip
 
 
 class Not(Chip):
@@ -62,7 +62,7 @@ class Xor(Chip):
 		self.add_part('and1', And())
 		self.add_part('and2', And())
 		self.add_part('or', Or())
-	
+
 		def f(ctx):
 			a = self.pin('a')
 			b = self.pin('b')
@@ -130,43 +130,43 @@ class AndMultiWay(Chip):
 					self.link_pins(f'and{part-1}.out', f'and{part}.a')
 					self.link_pins(f'{part+1}', f'and{part}.b')
 					self.process_chip(f'and{part}')
-					
 				if part == len(self.parts)-1:
 					self.link_pins(f"and{part}.out", "out")
-					
-		return f		
+		return f
 
 
 class MultiBitAnd(Chip):
 	def __init__(self, bits):
 		super().__init__(input_pins=['a', 'b'], output_pins=['out'])
 		self.bits = bits
+
 	def setup_wiring(self):
 		def f():
 			a = int(self.pin('a'))
 			b = int(self.pin('b'))
 			out = 0
 			for bit in range(self.bits):
-				v =  (a >> bit & 1) and (b >> bit & 1)
+				v = (a >> bit & 1) and (b >> bit & 1)
 				out |= v << bit
 			self.set_pin('out', out)
 		return f
 
+
 class HalfAdder(Chip):
 	def __init__(self):
 		super().__init__(input_pins=['a', 'b'], output_pins=['sum', 'carry'])
-		
 
 	def setup_wiring(self):
 		def f():
 			a = int(self.pin('a'))
 			b = int(self.pin('b'))
-			
+
 			self.set_pin('sum', a ^ b)
 			self.set_pin('carry', a and b)
 		return f
 
-class  DemuxNWay(Chip):
+
+class DemuxNWay(Chip):
 	def __init__(self, n):
 		inputs = ['in']
 		inputs.extend([f"sel{i}" for i in range(n)])
@@ -175,7 +175,7 @@ class  DemuxNWay(Chip):
 
 	def reset_out_pins(self):
 		for i in range(self.n**2):
-			self.set_pin(f"out{i}",False)
+			self.set_pin(f"out{i}", False)
 
 	def setup_wiring(self):
 		def f():
@@ -183,13 +183,13 @@ class  DemuxNWay(Chip):
 			for bit in range(self.n):
 				v = int(self.pin(f'sel{bit}'))
 				sel_value |= v << bit
-			
+
 			self.reset_out_pins()
 			self.set_pin(f'out{sel_value}', self.pin("in"))
-			
 		return f
 
-class  MuxNWay(Chip):
+
+class MuxNWay(Chip):
 	def __init__(self, n):
 		inputs = [f"sel{i}" for i in range(n)]
 		inputs.extend([f"in{i}" for i in range(n**2)])
@@ -198,7 +198,7 @@ class  MuxNWay(Chip):
 
 	def reset_out_pins(self):
 		for i in range(self.n**2):
-			self.set_pin(f"out",False)
+			self.set_pin(f"out", False)
 
 	def setup_wiring(self):
 		def f():
@@ -206,8 +206,6 @@ class  MuxNWay(Chip):
 			for bit in range(self.n):
 				v = int(self.pin(f'sel{bit}'))
 				sel_value |= v << bit
-			
 			self.reset_out_pins()
 			self.set_pin('out', self.pin(f"in{sel_value}"))
-			
 		return f
