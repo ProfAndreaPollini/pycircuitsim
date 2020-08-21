@@ -1,7 +1,7 @@
-from ..core.chip import Chip
+from ..core.chip import  Chip, NotClockedChip
 
 
-class Not(Chip):
+class Not(NotClockedChip):
 	def __init__(self):
 		super().__init__(input_pins=['a'], output_pins=['out'])
 
@@ -11,7 +11,7 @@ class Not(Chip):
 		return f
 
 
-class Or(Chip):
+class Or(NotClockedChip):
 	def __init__(self):
 		super().__init__(input_pins=['a', 'b'], output_pins=['out'])
 
@@ -20,8 +20,10 @@ class Or(Chip):
 			self.set_pin('out', self.pin('a') or self.pin('b'))
 		return f
 
+	def process(self):
+		self.wiring.resolve()
 
-class And(Chip):
+class And(NotClockedChip):
 	def __init__(self):
 		super().__init__(input_pins=['a', 'b'], output_pins=['out'])
 
@@ -30,8 +32,9 @@ class And(Chip):
 			self.set_pin('out', self.pin('a') and self.pin('b'))
 		return f
 
-
-class Nand(Chip):
+	def process(self):
+		self.wiring.resolve()
+class Nand(NotClockedChip):
 
 	def __init__(self):
 		super().__init__(input_pins=['a', 'b'], output_pins=['out'])
@@ -54,7 +57,7 @@ class Nand(Chip):
 		return f
 
 
-class Xor(Chip):
+class Xor(NotClockedChip):
 	def __init__(self):
 		super().__init__(input_pins=['a', 'b'], output_pins=['out'])
 		self.add_part('not1', Not())
@@ -151,6 +154,38 @@ class MultiBitAnd(Chip):
 			self.set_pin('out', out)
 		return f
 
+class MultiBitOr(Chip):
+	def __init__(self, bits):
+		super().__init__(input_pins=['a', 'b'], output_pins=['out'])
+		self.bits = bits
+
+	def setup_wiring(self):
+		def f():
+			a = int(self.pin('a'))
+			b = int(self.pin('b'))
+			out = 0
+			for bit in range(self.bits):
+				v = (a >> bit & 1) or (b >> bit & 1)
+				out |= v << bit
+			self.set_pin('out', out)
+		return f
+
+class MultiBitNot(Chip):
+	def __init__(self, bits):
+		super().__init__(input_pins=['a'], output_pins=['out'])
+		self.bits = bits
+
+	def setup_wiring(self):
+		def f():
+			a = int(self.pin('a'))
+			
+			out = 0
+			for bit in range(self.bits):
+				v = not (a >> bit & 1) 
+				out |= v << bit
+				
+			self.set_pin('out', out)
+		return f
 
 class HalfAdder(Chip):
 	def __init__(self):
@@ -192,7 +227,7 @@ class DemuxNWay(Chip):
 class MuxNWay(Chip):
 	def __init__(self, n):
 		inputs = [f"sel{i}" for i in range(n)]
-		inputs.extend([f"in{i}" for i in range(n**2)])
+		inputs.extend([f"in{i}" for i in range(2**n)])
 		super().__init__(input_pins=inputs, output_pins=['out'])
 		self.n = n
 

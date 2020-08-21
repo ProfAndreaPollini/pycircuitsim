@@ -35,7 +35,7 @@ def test_and_gate():
 		expected = p[0] and p[1]
 		chip.set_pin('a', p[0])
 		chip.set_pin('b', p[1])
-		chip.process()
+		#chip.process()
 		assert chip.pin('out') == expected
 
 def test_nand_gate():

@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="pycirctuisim-andreapollini",  # Replace with your own username
     version="0.0.1",
-    author="Example Author",
+    author="Andrea Pollini",
     author_email="prof.andrea.pollini@gmail.com",
     description="An educational circuit simulator library",
     long_description=long_description,
